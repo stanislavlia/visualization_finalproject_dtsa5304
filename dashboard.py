@@ -7,7 +7,7 @@ st.markdown(
     """
     <style>
     .small-box {
-        width: 100px !important;
+        width: 50px !important;
     }
     </style>
     """,
@@ -22,43 +22,70 @@ def build_price_histogram(filtered_df):
     hist_chart = alt.Chart(filtered_df).mark_bar(color='yellow').encode(
         alt.X('Price:Q', bin=alt.Bin(maxbins=30),
               title='Ticket Price (pounds)', 
-              scale=alt.Scale(domain=[0, max_price])),
+              scale=alt.Scale(domain=[0, max_price]),
+              axis=alt.Axis(tickCount=10)),
         alt.Y('count():Q', title='Count')
     ).properties(
-        width=700,
-        height=400,
-        title=f"Price for this trip",
-    ).configure_axis(
-        grid=False,
-        tickCount=10,
+        width=450,  # Reduced width
+        height=300,  # Reduced height
+        title=f"Price for this trip"
     )
 
     return hist_chart
+
+def create_pie_chart(data, column, title):
+    pie_data = data[column].value_counts().reset_index()
+    pie_data.columns = [column, 'count']
+    
+    pie_chart = alt.Chart(pie_data).mark_arc().encode(
+        theta=alt.Theta(field="count", type="quantitative"),
+        color=alt.Color(field=column, type="nominal", 
+                        legend=alt.Legend(title=title), 
+                        scale=alt.Scale(domain=pie_data[column].tolist(),
+                                        range=["#FFFF66", "#FFFF33", "#FFFF00", "#FFCC00", "#FFCC33"])),
+        tooltip=[column, 'count']
+    ).properties(
+        width=75,  # Reduced width
+        height=75,  # Reduced height
+        title=title
+    )
+
+    return pie_chart
 
 def main():
     st.title("UK Railways Train Ticket Dashboard")
 
     # Load data 
-    df = pd.read_csv("railway.csv")
+    try:
+        df = pd.read_csv("railway.csv")
+    except FileNotFoundError:
+        st.error("File not found. Please make sure 'railway.csv' is in the correct directory.")
+        return
+    except pd.errors.EmptyDataError:
+        st.error("The file is empty. Please provide a valid CSV file.")
+        return
+    except Exception as e:
+        st.error(f"An error occurred while loading the data: {e}")
+        return
 
     options_source = ['Birmingham New Street', 'Liverpool Lime Street', 'York',
-                        'Manchester Piccadilly', 'Reading']
+                      'Manchester Piccadilly', 'Reading']
     
     options_dest = ['Liverpool Lime Street', 'Manchester Piccadilly', 'London Euston', 
-       'London Paddington', 'London Kings Cross']
+                    'London Paddington', 'London Kings Cross']
     
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        source = st.selectbox("Select Source:", options_source, )
+        source = st.selectbox("Select Source:", options_source)
     with col2:
-        destination = st.selectbox("Select Destination:",  options_dest,)
+        destination = st.selectbox("Select Destination:", options_dest)
 
     st.write(
         """
         <style>
         .stSelectbox > div > div > div > select {
-            width: 100px !important;
+            width: 50px !important;
         }
         </style>
         """,
@@ -74,7 +101,20 @@ def main():
     hist_chart = build_price_histogram(filtered_df)
     
     if hist_chart:
-        st.altair_chart(hist_chart, use_container_width=True)
+        # Create pie charts
+        purchase_type_chart = create_pie_chart(filtered_df, 'Purchase Type', 'Purchase Type')
+        ticket_class_chart = create_pie_chart(filtered_df, 'Ticket Class', 'Ticket Class')
+        ticket_type_chart = create_pie_chart(filtered_df, 'Ticket Type', 'Ticket Type')
+
+        # Combine charts
+        combined_chart = alt.hconcat(
+            hist_chart,
+            alt.vconcat(purchase_type_chart, ticket_class_chart, ticket_type_chart).resolve_scale(color='independent')
+        ).resolve_legend(
+            color="independent"
+        )
+
+        st.altair_chart(combined_chart, use_container_width=True)
     else:
         st.write("No data available for the selected route.")
 
