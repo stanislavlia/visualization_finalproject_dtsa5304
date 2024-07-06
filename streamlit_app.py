@@ -9,6 +9,9 @@ st.markdown(
     .small-box {
         width: 50px !important;
     }
+    .stSelectbox > div > div > div > select {
+        width: 50px !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -56,7 +59,15 @@ def create_pie_chart(data, column, title):
     return pie_chart
 
 def main():
-    st.title("UK Railways Train Ticket Dashboard")
+    st.markdown(
+        """
+        <h2 style="text-align: center;">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg" alt="UK Flag" width="60">
+            UK Railways Train Ticket Dashboard
+        </h2>
+        """,
+        unsafe_allow_html=True
+    )
 
     # Load data 
     try:
@@ -87,17 +98,6 @@ def main():
     if source == destination:
         st.warning("Your source is the same as destination!")
 
-    st.write(
-        """
-        <style>
-        .stSelectbox > div > div > div > select {
-            width: 50px !important;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
     filtered_df = df[(df["Departure Station"] == source) & (df["Arrival Destination"] == destination)]
 
     st.write(f"Number of records: {len(filtered_df)}")
@@ -114,7 +114,11 @@ def main():
             alt.vconcat(purchase_type_chart, ticket_class_chart, ticket_type_chart).resolve_scale(color='independent')
         ).resolve_legend(
             color="independent"
-        ).configure_title(fontSize=26)  
+        ).configure_title(fontSize=26).configure_view(
+            continuousWidth=500,
+            continuousHeight=300,
+            stroke=None
+        )
 
         st.altair_chart(combined_chart, use_container_width=True)
     else:
