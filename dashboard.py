@@ -36,17 +36,19 @@ def build_price_histogram(filtered_df):
 def create_pie_chart(data, column, title):
     pie_data = data[column].value_counts().reset_index()
     pie_data.columns = [column, 'count']
+    pie_data['percentage'] = pie_data['count'] / pie_data['count'].sum() * 100
+    tooltip=[column, 'count', alt.Tooltip('percentage:Q', format='.2f', title='Percentage % ')]
     
-    pie_chart = alt.Chart(pie_data).mark_arc(stroke="black", strokeWidth=0.1).encode(
+    pie_chart = alt.Chart(pie_data).mark_arc().encode(
         theta=alt.Theta(field="count", type="quantitative"),
         color=alt.Color(field=column, type="nominal", 
                         legend=alt.Legend(title=title), 
                         scale=alt.Scale(domain=pie_data[column].tolist(),
                                         range=["#FFD700", "#FFA500", "#FFFF00", "#FFD700", "#FFEC8B"])),
-        tooltip=[column, 'count']
+        tooltip=tooltip
     ).properties(
-        width=90,  # Reduced width
-        height=90,  # Reduced height
+        width=95,  # Reduced width
+        height=95,  # Reduced height
         title=title
     )
 
@@ -111,7 +113,7 @@ def main():
             alt.vconcat(purchase_type_chart, ticket_class_chart, ticket_type_chart).resolve_scale(color='independent')
         ).resolve_legend(
             color="independent"
-        )
+        ).configure_title(fontSize=26)  
 
         st.altair_chart(combined_chart, use_container_width=True)
     else:
