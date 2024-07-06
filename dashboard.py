@@ -26,8 +26,8 @@ def build_price_histogram(filtered_df):
               axis=alt.Axis(tickCount=10)),
         alt.Y('count():Q', title='Count')
     ).properties(
-        width=450,  # Reduced width
-        height=300,  # Reduced height
+        width=600,  
+        height=400,  
         title=f"Price for this trip"
     )
 
@@ -45,8 +45,8 @@ def create_pie_chart(data, column, title):
                                         range=["#FFD700", "#FFA500", "#FFFF00", "#FFD700", "#FFEC8B"])),
         tooltip=[column, 'count']
     ).properties(
-        width=75,  # Reduced width
-        height=75,  # Reduced height
+        width=90,  # Reduced width
+        height=90,  # Reduced height
         title=title
     )
 
@@ -68,7 +68,7 @@ def main():
         st.error(f"An error occurred while loading the data: {e}")
         return
 
-    options_source = ['Birmingham New Street', 'Liverpool Lime Street', 'York',
+    options_source = ['Birmingham New Street', 'Liverpool Lime Street',
                       'Manchester Piccadilly', 'Reading']
     
     options_dest = ['Liverpool Lime Street', 'Manchester Piccadilly', 'London Euston', 
@@ -80,6 +80,9 @@ def main():
         source = st.selectbox("Select Source:", options_source)
     with col2:
         destination = st.selectbox("Select Destination:", options_dest)
+
+    if source == destination:
+        st.warning("Your source is the same as destination!")
 
     st.write(
         """
