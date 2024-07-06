@@ -18,7 +18,7 @@ def build_price_histogram(filtered_df):
     if filtered_df.empty:
         return None
     
-    max_price = filtered_df["Price"].max() if not filtered_df["Price"].empty else 100  # Ensure there's a max price
+    max_price = filtered_df["Price"].max() if not filtered_df["Price"].empty else 100  
     hist_chart = alt.Chart(filtered_df).mark_bar(color='yellow').encode(
         alt.X('Price:Q', bin=alt.Bin(maxbins=30),
               title='Ticket Price (pounds)', 
@@ -37,12 +37,12 @@ def create_pie_chart(data, column, title):
     pie_data = data[column].value_counts().reset_index()
     pie_data.columns = [column, 'count']
     
-    pie_chart = alt.Chart(pie_data).mark_arc().encode(
+    pie_chart = alt.Chart(pie_data).mark_arc(stroke="black", strokeWidth=0.1).encode(
         theta=alt.Theta(field="count", type="quantitative"),
         color=alt.Color(field=column, type="nominal", 
                         legend=alt.Legend(title=title), 
                         scale=alt.Scale(domain=pie_data[column].tolist(),
-                                        range=["#FFFF66", "#FFFF33", "#FFFF00", "#FFCC00", "#FFCC33"])),
+                                        range=["#FFD700", "#FFA500", "#FFFF00", "#FFD700", "#FFEC8B"])),
         tooltip=[column, 'count']
     ).properties(
         width=75,  # Reduced width
@@ -92,21 +92,17 @@ def main():
         unsafe_allow_html=True
     )
 
-    # Filter data based on selections
     filtered_df = df[(df["Departure Station"] == source) & (df["Arrival Destination"] == destination)]
 
-    # Display filtered data count
     st.write(f"Number of records: {len(filtered_df)}")
 
     hist_chart = build_price_histogram(filtered_df)
     
     if hist_chart:
-        # Create pie charts
         purchase_type_chart = create_pie_chart(filtered_df, 'Purchase Type', 'Purchase Type')
         ticket_class_chart = create_pie_chart(filtered_df, 'Ticket Class', 'Ticket Class')
         ticket_type_chart = create_pie_chart(filtered_df, 'Ticket Type', 'Ticket Type')
 
-        # Combine charts
         combined_chart = alt.hconcat(
             hist_chart,
             alt.vconcat(purchase_type_chart, ticket_class_chart, ticket_type_chart).resolve_scale(color='independent')
