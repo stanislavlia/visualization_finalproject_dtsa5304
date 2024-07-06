@@ -23,7 +23,8 @@ def build_price_histogram(filtered_df):
         alt.X('Price:Q', bin=alt.Bin(maxbins=30),
               title='Ticket Price (pounds)', 
               scale=alt.Scale(domain=[0, max_price]),
-              axis=alt.Axis(tickCount=10)),
+              axis=alt.Axis(values=list(range(0, int(max_price) + 1, 5))))
+        ,
         alt.Y('count():Q', title='Count')
     ).properties(
         width=600,  
