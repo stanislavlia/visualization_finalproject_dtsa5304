@@ -29,19 +29,19 @@ def build_price_histogram(filtered_df):
     hist_chart = alt.Chart(filtered_df).transform_bin(
         "binned_price",
         "Price",
-        bin=alt.Bin(maxbins=30)
+        bin=alt.Bin(maxbins=40)
     ).transform_aggregate(
         count='count()',
         groupby=["binned_price"]
     ).transform_calculate(
         fraction="datum.count / ({} * 1)".format(total_count)
-    ).mark_bar(color='yellow').encode(
+    ).mark_bar(color='#9b910c').encode(
         alt.X('binned_price:Q', title='Ticket Price (pounds)',
               scale=alt.Scale(domain=[0, max_price]),
               axis=alt.Axis(values=list(range(0, int(max_price) + 1, 5)))),
         alt.Y('fraction:Q', title='Percentage', axis=alt.Axis(format='.1%'),
-              scale=alt.Scale(domain=[0, 0.7])),
-        tooltip=[alt.Tooltip('binned_price:Q', title='Price'), alt.Tooltip('fraction:Q', format='.1f', title='Percentage')]
+              scale=alt.Scale(domain=[0, 0.65])),
+        tooltip=[alt.Tooltip('binned_price:Q', title='Price'), alt.Tooltip('fraction:Q', format='.1f', title='fration')]
     ).properties(
         width=600,  
         height=400,  
@@ -113,7 +113,7 @@ def main():
 
     filtered_df = df[(df["Departure Station"] == source) & (df["Arrival Destination"] == destination)]
 
-    st.write(f"Number of records: {len(filtered_df)}")
+    st.write(f"Number of tickets recorded: {len(filtered_df)}")
 
     hist_chart = build_price_histogram(filtered_df)
     
