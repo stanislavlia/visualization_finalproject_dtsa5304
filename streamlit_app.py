@@ -17,18 +17,31 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
 def build_price_histogram(filtered_df):
     if filtered_df.empty:
         return None
     
-    max_price = filtered_df["Price"].max() if not filtered_df["Price"].empty else 100  
-    hist_chart = alt.Chart(filtered_df).mark_bar(color='yellow').encode(
-        alt.X('Price:Q', bin=alt.Bin(maxbins=30),
-              title='Ticket Price (pounds)', 
+    max_price = filtered_df["Price"].max() if not filtered_df["Price"].empty else 100 
+    total_count = len(filtered_df)
+    
+    # Create the histogram with fractions
+    hist_chart = alt.Chart(filtered_df).transform_bin(
+        "binned_price",
+        "Price",
+        bin=alt.Bin(maxbins=30)
+    ).transform_aggregate(
+        count='count()',
+        groupby=["binned_price"]
+    ).transform_calculate(
+        fraction="datum.count / ({} * 1)".format(total_count)
+    ).mark_bar(color='yellow').encode(
+        alt.X('binned_price:Q', title='Ticket Price (pounds)',
               scale=alt.Scale(domain=[0, max_price]),
-              axis=alt.Axis(values=list(range(0, int(max_price) + 1, 5))))
-        ,
-        alt.Y('count():Q', title='Count')
+              axis=alt.Axis(values=list(range(0, int(max_price) + 1, 5)))),
+        alt.Y('fraction:Q', title='Percentage', axis=alt.Axis(format='.1%'),
+              scale=alt.Scale(domain=[0, 0.7])),
+        tooltip=[alt.Tooltip('binned_price:Q', title='Price'), alt.Tooltip('fraction:Q', format='.1f', title='Percentage')]
     ).properties(
         width=600,  
         height=400,  
