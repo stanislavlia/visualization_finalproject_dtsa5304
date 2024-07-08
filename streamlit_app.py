@@ -59,7 +59,7 @@ def create_pie_chart(data, column, title):
     pie_chart = alt.Chart(pie_data).mark_arc().encode(
         theta=alt.Theta(field="count", type="quantitative"),
         color=alt.Color(field=column, type="nominal", 
-                        legend=alt.Legend(title=title), 
+                        legend=alt.Legend(title=column, titleFontSize=22), 
                         scale=alt.Scale(domain=pie_data[column].tolist(),
                                         range=["#FFD700", "#FFA500", "#FFFF00", "#FFD700", "#FFEC8B"])),
         tooltip=tooltip
@@ -118,9 +118,9 @@ def main():
     hist_chart = build_price_histogram(filtered_df)
     
     if hist_chart:
-        purchase_type_chart = create_pie_chart(filtered_df, 'Purchase Type', 'Purchase Type')
-        ticket_class_chart = create_pie_chart(filtered_df, 'Ticket Class', 'Ticket Class')
-        ticket_type_chart = create_pie_chart(filtered_df, 'Ticket Type', 'Ticket Type')
+        purchase_type_chart = create_pie_chart(filtered_df, 'Purchase Type', 'Tickets info')
+        ticket_class_chart = create_pie_chart(filtered_df, 'Ticket Class', '')
+        ticket_type_chart = create_pie_chart(filtered_df, 'Ticket Type', '')
 
         combined_chart = alt.hconcat(
             hist_chart,
