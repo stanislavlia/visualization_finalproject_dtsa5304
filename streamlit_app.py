@@ -41,7 +41,7 @@ def build_price_histogram(filtered_df):
               axis=alt.Axis(values=list(range(0, int(max_price) + 1, 5)))),
         alt.Y('fraction:Q', title='Percentage', axis=alt.Axis(format='.2%'),
               scale=alt.Scale(domain=[0, 0.60])),
-        tooltip=[alt.Tooltip('binned_price:Q', title='Price(pounds)'), alt.Tooltip('fraction:Q', format='.3f', title='fration')]
+        tooltip=[alt.Tooltip('binned_price:Q', title='Price(pounds)'), alt.Tooltip('fraction:Q', format='.3f', title='fraction')]
     ).properties(
         width=600,  
         height=400,  
